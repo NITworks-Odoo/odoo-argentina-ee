@@ -27,6 +27,12 @@ class L10nArAfipwsConnection(models.Model):
 
     def _l10n_ar_get_token_data(self, company, afip_ws):
         # EXTEND l10n_ar_edi
-        """We want to check first if the certificate match with the company CUIT before trying to get token data"""
-        company._check_match_between_certificate_and_company()
+
+        # Only enforce certificate/company CUIT matching in Production.
+        # In Testing (WSAA Homologación), let ARCA validate the authorization
+        # between the certificate owner and the represented CUIT.
+        if company._get_environment_type() == "production":
+            company._check_match_between_certificate_and_company()
+
         return super()._l10n_ar_get_token_data(company, afip_ws)
+
